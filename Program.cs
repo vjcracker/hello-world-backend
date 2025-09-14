@@ -1,11 +1,17 @@
 // This is the Program.cs file with full support for controllers and Swagger.
 
 // 1. Create a new web application builder.
+using HelloWorld.Authentication.Services;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 2. Add controllers as a service.
 // This is the core service that enables controller-based API endpoints.
 builder.Services.AddControllers();
+builder.Services.AddSingleton<UserLoginService>();
+builder.Services.AddSingleton<TokenService>();
 
 // Add DORS services and define a policy
 builder.Services.AddCors(options =>
@@ -27,8 +33,35 @@ builder.Services.AddEndpointsApiExplorer();
 // for your API. This is what the documentation UI is built on.
 builder.Services.AddSwaggerGen();
 
+// 1. Add Authentication Services
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Bearer";
+    options.DefaultChallengeScheme = "Bearer";
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+// 3. Add Authorization Services
+builder.Services.AddAuthorization();
+
 // 4. Build the application.
 var app = builder.Build();
+
+// 4. Use the middleware
+app.UseAuthentication();
+app.UseAuthorization();
 
 // 5. Configure the HTTP request pipeline.
 // In a development environment, you should enable Swagger UI.
