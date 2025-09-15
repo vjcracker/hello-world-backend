@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using HelloWorld.Authentication.Models;
 using HelloWorld.Authentication.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -54,7 +55,8 @@ namespace HelloWorld.Authentication.Controllers
         [HttpGet("protected")]
         public IActionResult ProtectedResource()
         {
-            var username = User.Identity?.Name;
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var username = claimsIdentity?.Claims.FirstOrDefault(c => c.Type == claimsIdentity.NameClaimType)?.Value;
             return Ok(new { message = $"Hello from {username}! You have successfully accessed a protected resource" });
         }
 

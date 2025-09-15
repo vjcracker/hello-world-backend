@@ -4,6 +4,7 @@
 using HelloWorld.Authentication.Services;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +50,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        NameClaimType = ClaimTypes.NameIdentifier 
     };
 });
 
@@ -77,7 +79,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Enable HTTPS redirection. This is a best practice for security.
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors("HelloWorldCorsPolicy");
 

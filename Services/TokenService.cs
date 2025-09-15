@@ -27,7 +27,7 @@ namespace HelloWorld.Authentication.Services
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, username),
+                new Claim(JwtRegisteredClaimNames.Sub, username),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
